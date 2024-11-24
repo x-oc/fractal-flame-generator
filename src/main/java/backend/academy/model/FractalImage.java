@@ -1,4 +1,4 @@
-package backend.academy;
+package backend.academy.model;
 
 public record FractalImage(Pixel[][] data, int width, int height) {
 
@@ -12,11 +12,11 @@ public record FractalImage(Pixel[][] data, int width, int height) {
         return new FractalImage(pixels, width, height);
     }
 
-    boolean contains(int x, int y) {
+    public boolean contains(int x, int y) {
         return x < width && y < height && data[x][y] != null;
     }
 
-    Pixel pixel(int x, int y) {
+    public Pixel pixel(int x, int y) {
         if (!contains(x, y)) return null;
         return data[x][y];
     }

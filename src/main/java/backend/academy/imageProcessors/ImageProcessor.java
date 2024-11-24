@@ -1,6 +1,6 @@
 package backend.academy.imageProcessors;
 
-import backend.academy.FractalImage;
+import backend.academy.model.FractalImage;
 
 // пост-обработка in-place, например, гамма-коррекция
 @FunctionalInterface

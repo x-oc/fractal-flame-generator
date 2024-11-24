@@ -1,8 +1,8 @@
 package backend.academy.imageProcessors;
 
-import backend.academy.Color;
-import backend.academy.FractalImage;
-import backend.academy.Pixel;
+import backend.academy.model.Color;
+import backend.academy.model.FractalImage;
+import backend.academy.model.Pixel;
 
 public class GammaCorrection implements ImageProcessor {
 

@@ -1,13 +1,14 @@
 package backend.academy.transformations;
 
-import backend.academy.Point;
+import backend.academy.model.Point;
 
 public class Disc implements Transformation {
 
     @Override
     public Point apply(Point point) {
         double r = Math.sqrt(point.x() * point.x() + point.y() * point.y());
-        return new Point(Math.atan(point.y() / point.x()) * Math.sin(Math.PI * r) / Math.PI,
-                         Math.atan(point.y() / point.x()) * Math.cos(Math.PI * r) / Math.PI);
+        double theta = Math.atan(point.y() / point.x());
+        return new Point(theta * Math.sin(Math.PI * r) / Math.PI,
+                         theta * Math.cos(Math.PI * r) / Math.PI);
     }
 }

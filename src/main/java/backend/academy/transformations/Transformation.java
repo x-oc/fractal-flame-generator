@@ -1,7 +1,6 @@
 package backend.academy.transformations;
 
-import backend.academy.Color;
-import backend.academy.Point;
+import backend.academy.model.Point;
 import java.util.function.Function;
 
 // функция-преобразование

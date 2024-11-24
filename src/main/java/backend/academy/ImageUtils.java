@@ -1,5 +1,8 @@
 package backend.academy;
 
+import backend.academy.model.FractalImage;
+import backend.academy.model.ImageFormat;
+import backend.academy.model.Pixel;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -22,9 +25,11 @@ public final class ImageUtils {
         for (int y = 0; y < image.height(); y++) {
             for (int x = 0; x < image.width(); x++) {
                 Pixel pixel = image.pixel(x, y);
-                raster.setSample(x, y, 0, pixel.color().r());
-                raster.setSample(x, y, 1, pixel.color().g());
-                raster.setSample(x, y, 2, pixel.color().b());
+                if (pixel != null) {
+                    raster.setSample(x, y, 0, pixel.color().r());
+                    raster.setSample(x, y, 1, pixel.color().g());
+                    raster.setSample(x, y, 2, pixel.color().b());
+                }
             }
         }
 

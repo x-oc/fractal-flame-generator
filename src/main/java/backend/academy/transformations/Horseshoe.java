@@ -1,6 +1,6 @@
 package backend.academy.transformations;
 
-import backend.academy.Point;
+import backend.academy.model.Point;
 
 public class Horseshoe implements Transformation {
 

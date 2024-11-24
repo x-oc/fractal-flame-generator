@@ -1,14 +1,14 @@
 package backend.academy.transformations;
 
-import backend.academy.Color;
-import backend.academy.Point;
+import backend.academy.model.Color;
+import backend.academy.model.Point;
 import java.util.Random;
 
 public record AffineTransformation
     (double a, double b, double c, double d, double e, double f, Color color)
     implements Transformation {
 
-    public static AffineTransformation random(Random random) {
+    public static AffineTransformation colored(Random random, Color color) {
 
         double a = random.nextDouble(-1, 1);
         double b = random.nextDouble(-1, 1);
@@ -24,7 +24,16 @@ public record AffineTransformation
             e = random.nextDouble(-1, 1);
         }
 
-        return new AffineTransformation(a, b, c, d, e, f, Color.random(random));
+        return new AffineTransformation(a, b, c, d, e, f, color);
+    }
+
+    public static AffineTransformation colored(Color color) {
+        return colored(new Random(), color);
+    }
+
+    public static AffineTransformation random(Random random) {
+
+        return colored(random, Color.random(random));
     }
 
     public static AffineTransformation random() {
@@ -32,9 +41,9 @@ public record AffineTransformation
     }
 
     private static boolean isCompressive(double a, double b, double d, double e) {
-        return ((a * a + d * d) < 1)
-            && ((b * b + e * e) < 1)
-            && ((a * a + b * b + d * d + e * e) < (1 + (a * e - b * d) * (a * e - b * d)));
+        return a * a + d * d < 1
+            && b * b + e * e < 1
+            && a * a + b * b + d * d + e * e < 1 + (a * e - b * d) * (a * e - b * d);
     }
 
     @Override
