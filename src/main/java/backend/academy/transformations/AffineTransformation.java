@@ -2,10 +2,12 @@ package backend.academy.transformations;
 
 import backend.academy.model.Color;
 import backend.academy.model.Point;
+import java.security.SecureRandom;
 import java.util.Random;
 
-public record AffineTransformation
-    (double a, double b, double c, double d, double e, double f, Color color)
+public record AffineTransformation(double a, double b, double c,
+                                   double d, double e, double f,
+                                   Color color)
     implements Transformation {
 
     public static AffineTransformation colored(Random random, Color color) {
@@ -28,7 +30,7 @@ public record AffineTransformation
     }
 
     public static AffineTransformation colored(Color color) {
-        return colored(new Random(), color);
+        return colored(new SecureRandom(), color);
     }
 
     public static AffineTransformation random(Random random) {
@@ -37,7 +39,7 @@ public record AffineTransformation
     }
 
     public static AffineTransformation random() {
-        return random(new Random());
+        return random(new SecureRandom());
     }
 
     private static boolean isCompressive(double a, double b, double d, double e) {

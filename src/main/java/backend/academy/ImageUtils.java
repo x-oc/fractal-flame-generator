@@ -3,13 +3,14 @@ package backend.academy;
 import backend.academy.model.FractalImage;
 import backend.academy.model.ImageFormat;
 import backend.academy.model.Pixel;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.nio.file.Path;
+import javax.imageio.ImageIO;
 
 public final class ImageUtils {
+
     private ImageUtils() {}
 
     public static void save(FractalImage image, Path filename, ImageFormat format) {

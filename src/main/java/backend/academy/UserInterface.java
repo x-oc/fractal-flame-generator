@@ -8,18 +8,16 @@ import backend.academy.renderers.FlameRenderer;
 import backend.academy.renderers.MultiThreadRenderer;
 import backend.academy.renderers.SingleThreadRenderer;
 import backend.academy.transformations.AffineTransformation;
-import backend.academy.transformations.Disc;
-import backend.academy.transformations.Heart;
-import backend.academy.transformations.Horseshoe;
 import backend.academy.transformations.Linear;
-import backend.academy.transformations.Popcorn;
-import backend.academy.transformations.Sinusoidal;
-import backend.academy.transformations.Spherical;
-import backend.academy.transformations.Swirl;
 import backend.academy.transformations.Transformation;
+import backend.academy.transformations.TransformationFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.Scanner;
 
 public class UserInterface {
 
-    private static final Scanner SCANNER = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in, StandardCharsets.UTF_8);
     private static final PrintStream PRINT_STREAM = System.out;
     private static final int AFFINE_DEFAULT = 10;
     private static final int WIDTH_DEFAULT = 1920;
@@ -38,21 +36,26 @@ public class UserInterface {
     private static final int SAMPLES_DEFAULT = 10000;
     private static final int ITER_PER_SAMPLE_DEFAULT = 1000;
 
+    private UserInterface() {
+
+    }
+
     public static FlameRenderer getFlameRenderer() {
 
         PRINT_STREAM.println("Ввод режима генерации пламени.");
         PRINT_STREAM.println("Однопоточный (1) / Многопоточный (2): ");
 
         String input = SCANNER.nextLine();
-        if (input.equals("1")) {
+        if ("1".equals(input)) {
             return new SingleThreadRenderer();
-        } else if (input.equals("2")) {
+        } else if ("2".equals(input)) {
             return new MultiThreadRenderer();
         }
         PRINT_STREAM.println("Будет использован режим по умолчанию (многопоточный)");
         return new MultiThreadRenderer();
     }
 
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public static Path getOutputFileName() {
         PRINT_STREAM.println("Введите имя выходного файла: ");
         return Paths.get(SCANNER.nextLine());
@@ -83,25 +86,14 @@ public class UserInterface {
     private static List<Transformation> getTransformations() {
         List<Transformation> transformations = new ArrayList<>();
 
-        PRINT_STREAM.println("Введите нелинейные преобразования " +
-            "(disc, heart, horseshoe, linear, popcorn, sinusoidal, spherical, swirl), " +
-            "для окончания ввода введите Enter: ");
+        PRINT_STREAM.println("Введите нелинейные преобразования "
+            + "(" + TransformationFactory.TRANSFORM_NAMES + "), для окончания ввода введите Enter: ");
 
         String input = SCANNER.nextLine();
 
         while (!input.isEmpty()) {
             try {
-                transformations.add(switch (input) {
-                    case "disc" -> new Disc();
-                    case "heart" -> new Heart();
-                    case "horseshoe" -> new Horseshoe();
-                    case "linear" -> new Linear();
-                    case "popcorn" -> new Popcorn();
-                    case "sinusoidal" -> new Sinusoidal();
-                    case "spherical" -> new Spherical();
-                    case "swirl" -> new Swirl();
-                    default -> throw new IllegalStateException(input);
-                });
+                transformations.add(TransformationFactory.getTransformation(input));
             } catch (IllegalStateException e) {
                 PRINT_STREAM.println("Такого преобразования нет!");
             }
@@ -117,18 +109,17 @@ public class UserInterface {
     }
 
     private static List<AffineTransformation> getAffine() {
-        List<AffineTransformation> affineTransformations = new ArrayList<>();
-
         PRINT_STREAM.println("Введите количество аффинных преобразований: ");
 
-        int count = AFFINE_DEFAULT;;
+        int count = AFFINE_DEFAULT;
         try {
             count = Integer.parseInt(SCANNER.nextLine());
-        } catch(NumberFormatException e){
-            PRINT_STREAM.println("Будет использовано количество аффинных преобразований по умолчанию: " +
-                AFFINE_DEFAULT);
+        } catch (NumberFormatException e) {
+            PRINT_STREAM.println("Будет использовано количество аффинных преобразований по умолчанию: "
+                + AFFINE_DEFAULT);
         }
 
+        List<AffineTransformation> affineTransformations = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             affineTransformations.add(AffineTransformation.random());
         }
@@ -214,14 +205,16 @@ public class UserInterface {
         return iterPerSample;
     }
 
+    @SuppressWarnings("MagicNumber")
     private static Random getRandom() {
         PRINT_STREAM.println("Введите сид рандома: ");
-        Random random = new Random();
+        Random random = new SecureRandom();
 
         try {
-            random = new Random(Integer.parseInt(SCANNER.nextLine()));
+            random = new SecureRandom(ByteBuffer.allocate(4).putInt(
+                Integer.parseInt(SCANNER.nextLine())).array());
         } catch (NumberFormatException e) {
-            PRINT_STREAM.println("Будет использовано количество осей по умолчанию: " + SYMMETRY_DEFAULT);
+            PRINT_STREAM.println("Будет использовано случайный сид рандома");
         }
 
         return random;

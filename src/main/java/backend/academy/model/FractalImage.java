@@ -13,11 +13,15 @@ public record FractalImage(Pixel[][] data, int width, int height) {
     }
 
     public boolean contains(int x, int y) {
-        return x < width && y < height && data[x][y] != null;
+        return x < width && y < height
+            && x >= 0 && y >= 0
+            && data[x][y] != null;
     }
 
     public Pixel pixel(int x, int y) {
-        if (!contains(x, y)) return null;
+        if (!contains(x, y)) {
+            return null;
+        }
         return data[x][y];
     }
 }
