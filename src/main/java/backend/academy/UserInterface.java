@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class UserInterface {
 
     private static final Scanner SCANNER = new Scanner(System.in, StandardCharsets.UTF_8);
@@ -31,16 +33,16 @@ public class UserInterface {
     private static final int AFFINE_DEFAULT = 10;
     private static final int WIDTH_DEFAULT = 1920;
     private static final int HEIGHT_DEFAULT = 1080;
-    private static final Rect WORLD_DEFAULT = new Rect(-1.777, -1, 3.555, 2);
+    private static final double WORLD_MIN_X = -1.777;
+    private static final double WORLD_MIN_Y = -1;
+    private static final Rect WORLD_DEFAULT = new Rect(WORLD_MIN_X, WORLD_MIN_Y,
+                                                       Math.abs(WORLD_MIN_X * 2), Math.abs(WORLD_MIN_Y * 2));
     private static final int SYMMETRY_DEFAULT = 1;
     private static final int SAMPLES_DEFAULT = 10000;
     private static final int ITER_PER_SAMPLE_DEFAULT = 1000;
+    private static final ImageFormat IMAGE_FORMAT_DEFAULT = ImageFormat.PNG;
 
-    private UserInterface() {
-
-    }
-
-    public static FlameRenderer getFlameRenderer() {
+    public FlameRenderer getFlameRenderer() {
 
         PRINT_STREAM.println("Ввод режима генерации пламени.");
         PRINT_STREAM.println("Однопоточный (1) / Многопоточный (2): ");
@@ -56,23 +58,29 @@ public class UserInterface {
     }
 
     @SuppressFBWarnings("PATH_TRAVERSAL_IN")
-    public static Path getOutputFileName() {
+    public Path getOutputFileName() {
         PRINT_STREAM.println("Введите имя выходного файла: ");
         return Paths.get(SCANNER.nextLine());
     }
 
-    public static ImageFormat getOutputFileFormat() {
+    public ImageFormat getOutputFileFormat() {
         PRINT_STREAM.println("Введите формат выходного файла (" + Arrays.toString(ImageFormat.values()) + "): ");
-        return ImageFormat.valueOf(SCANNER.nextLine());
+        ImageFormat format = IMAGE_FORMAT_DEFAULT;
+        try {
+            format = ImageFormat.valueOf(SCANNER.nextLine());
+        } catch (IllegalArgumentException e) {
+            PRINT_STREAM.println("Будет использован формат по умолчанию: " + IMAGE_FORMAT_DEFAULT);
+        }
+        return format;
     }
 
-    public static FlameRenderParams getParams() {
+    public FlameRenderParams getFlameParams() {
         FlameRenderParams.FlameRenderParamsBuilder params = FlameRenderParams.builder();
 
         PRINT_STREAM.println("Ввод параметров генерации пламени.");
 
         params.variations(getTransformations());
-        params.affineTransforms(getAffine());
+        params.affineTransforms(getAffineTransformations());
         params.canvas(getCanvas());
         params.world(getWorld());
         params.symmetry(getSymmetry());
@@ -83,7 +91,7 @@ public class UserInterface {
         return params.build();
     }
 
-    private static List<Transformation> getTransformations() {
+    private List<Transformation> getTransformations() {
         List<Transformation> transformations = new ArrayList<>();
 
         PRINT_STREAM.println("Введите нелинейные преобразования "
@@ -108,16 +116,8 @@ public class UserInterface {
         return transformations;
     }
 
-    private static List<AffineTransformation> getAffine() {
-        PRINT_STREAM.println("Введите количество аффинных преобразований: ");
-
-        int count = AFFINE_DEFAULT;
-        try {
-            count = Integer.parseInt(SCANNER.nextLine());
-        } catch (NumberFormatException e) {
-            PRINT_STREAM.println("Будет использовано количество аффинных преобразований по умолчанию: "
-                + AFFINE_DEFAULT);
-        }
+    private List<AffineTransformation> getAffineTransformations() {
+        int count = getInt("количество аффинных преобразований", AFFINE_DEFAULT);
 
         List<AffineTransformation> affineTransformations = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -127,7 +127,7 @@ public class UserInterface {
         return affineTransformations;
     }
 
-    private static FractalImage getCanvas() {
+    private FractalImage getCanvas() {
         PRINT_STREAM.println("Введите размер итогового изображения ");
         int width = WIDTH_DEFAULT;
         int height = HEIGHT_DEFAULT;
@@ -149,7 +149,7 @@ public class UserInterface {
         return FractalImage.create(width, height);
     }
 
-    private static Rect getWorld() {
+    private Rect getWorld() {
         PRINT_STREAM.println("Введите размеры области (x, y, width, height)");
         Rect world = WORLD_DEFAULT;
 
@@ -166,47 +166,33 @@ public class UserInterface {
         return world;
     }
 
-    private static int getSymmetry() {
-        PRINT_STREAM.println("Введите количество осей симметрии: ");
-        int symmetry = SYMMETRY_DEFAULT;
-
-        try {
-            symmetry = Integer.parseInt(SCANNER.nextLine());
-        } catch (NumberFormatException e) {
-            PRINT_STREAM.println("Будет использовано количество осей по умолчанию: " + SYMMETRY_DEFAULT);
-        }
-
-        return symmetry;
+    private int getSymmetry() {
+        return getInt("количество осей симметрии", SYMMETRY_DEFAULT);
     }
 
-    private static int getSamples() {
-        PRINT_STREAM.println("Введите количество начальных пикселей: ");
-        int samples = SAMPLES_DEFAULT;
-
-        try {
-            samples = Integer.parseInt(SCANNER.nextLine());
-        } catch (NumberFormatException e) {
-            PRINT_STREAM.println("Будет использовано количество пикселей по умолчанию: " + SAMPLES_DEFAULT);
-        }
-
-        return samples;
+    private int getSamples() {
+        return getInt("количество начальных пикселей", SAMPLES_DEFAULT);
     }
 
-    private static int getIterPerSample() {
-        PRINT_STREAM.println("Введите количество итераций на пиксель: ");
-        int iterPerSample = ITER_PER_SAMPLE_DEFAULT;
+    private int getIterPerSample() {
+        return getInt("количество итераций на пиксель", ITER_PER_SAMPLE_DEFAULT);
+    }
+
+    private int getInt(String valueName, int defaultValue) {
+        PRINT_STREAM.println("Введите " + valueName + ": ");
+        int value = defaultValue;
 
         try {
-            iterPerSample = Integer.parseInt(SCANNER.nextLine());
+            value = Integer.parseInt(SCANNER.nextLine());
         } catch (NumberFormatException e) {
-            PRINT_STREAM.println("Будет использовано количество итераций по умолчанию: " + ITER_PER_SAMPLE_DEFAULT);
+            PRINT_STREAM.println("Будет использовано " + valueName + " по умолчанию: " + defaultValue);
         }
 
-        return iterPerSample;
+        return value;
     }
 
     @SuppressWarnings("MagicNumber")
-    private static Random getRandom() {
+    private Random getRandom() {
         PRINT_STREAM.println("Введите сид рандома: ");
         Random random = new SecureRandom();
 

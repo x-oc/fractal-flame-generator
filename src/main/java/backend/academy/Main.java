@@ -62,7 +62,7 @@ public class Main {
 
     public static void userMode() {
         FlameRenderer renderer = UserInterface.getFlameRenderer();
-        FlameRenderParams params = UserInterface.getParams();
+        FlameRenderParams params = UserInterface.getFlameParams();
         Path fileName = UserInterface.getOutputFileName();
         ImageFormat imageFormat = UserInterface.getOutputFileFormat();
 

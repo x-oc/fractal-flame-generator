@@ -8,18 +8,18 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.nio.file.Path;
 import javax.imageio.ImageIO;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public final class ImageUtils {
 
-    private ImageUtils() {}
-
-    public static void save(FractalImage image, Path filename, ImageFormat format) {
+    public void save(FractalImage image, Path filename, ImageFormat format) {
         if (format == ImageFormat.PNG) {
             savePNG(image, filename);
         }
     }
 
-    private static void savePNG(FractalImage image, Path filename) {
+    private void savePNG(FractalImage image, Path filename) {
         BufferedImage bufferedImage = new BufferedImage(image.width(), image.height(), BufferedImage.TYPE_INT_RGB);
         WritableRaster raster = bufferedImage.getRaster();
 
