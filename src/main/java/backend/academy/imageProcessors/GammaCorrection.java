@@ -6,7 +6,7 @@ import backend.academy.model.Pixel;
 
 public class GammaCorrection implements ImageProcessor {
 
-    public static final double GAMMA = 2.2;
+    private static final double GAMMA = 2.2;
 
     @Override
     public void process(FractalImage image) {

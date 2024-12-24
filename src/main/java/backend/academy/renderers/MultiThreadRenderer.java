@@ -18,7 +18,7 @@ public class MultiThreadRenderer extends FlameRenderer {
                     () -> processRandomPoint(params)
                 );
             }
-            executorService.shutdown();
+            executorService.close();
             try {
                 executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
             } catch (InterruptedException e) {

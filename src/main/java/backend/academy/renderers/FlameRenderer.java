@@ -16,7 +16,7 @@ import java.util.List;
 
 public abstract class FlameRenderer {
 
-    private static final int NORMALIZATION = 20;
+    private static final int STEPS_TO_NORMALIZE_POINT = 20;
 
     public FractalImage render(FlameRenderParams params) {
 
@@ -41,7 +41,7 @@ public abstract class FlameRenderer {
     protected void processRandomPoint(FlameRenderParams params) {
 
         Point point = Point.random(params.world(), params.random());
-        for (int step = -NORMALIZATION; step < params.iterPerSample(); ++step) {
+        for (int step = -STEPS_TO_NORMALIZE_POINT; step < params.iterPerSample(); ++step) {
 
             Transformation transformation = params.variations().get(
                 params.random().nextInt(params.variations().size()));
